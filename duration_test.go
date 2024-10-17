@@ -2,6 +2,7 @@ package duration
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -18,26 +19,14 @@ func TestParse(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "invalid-duration-1",
-			args:    args{d: "T0S"},
-			want:    nil,
-			wantErr: true,
-		},
-		{
-			name:    "invalid-duration-2",
-			args:    args{d: "P-T0S"},
-			want:    nil,
-			wantErr: true,
-		},
-		{
 			name:    "invalid-duration-3",
-			args:    args{d: "PT0SP0D"},
+			args:    args{d: "0SP0D"},
 			want:    nil,
 			wantErr: true,
 		},
 		{
 			name: "period-only",
-			args: args{d: "P4Y"},
+			args: args{d: "4Y"},
 			want: &Duration{
 				Years: 4,
 			},
@@ -45,7 +34,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "time-only-decimal",
-			args: args{d: "PT2.5S"},
+			args: args{d: "2.5S"},
 			want: &Duration{
 				Seconds: 2.5,
 			},
@@ -53,7 +42,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "full",
-			args: args{d: "P3Y6M4DT12H30M5.5S"},
+			args: args{d: "3Y6M4D12H30m5.5S"},
 			want: &Duration{
 				Years:   3,
 				Months:  6,
@@ -66,7 +55,7 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "negative",
-			args: args{d: "-PT5M"},
+			args: args{d: "-5m"},
 			want: &Duration{
 				Minutes:  5,
 				Negative: true,
@@ -78,6 +67,7 @@ func TestParse(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := Parse(tt.args.d)
 			if (err != nil) != tt.wantErr {
+				fmt.Println(tt)
 				t.Errorf("Parse() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
@@ -129,31 +119,31 @@ func TestFormat(t *testing.T) {
 	}{
 		{
 			give: 0,
-			want: "PT0S",
+			want: "0S",
 		},
 		{
 			give: time.Minute * 94,
-			want: "PT1H34M",
+			want: "1H34m",
 		},
 		{
 			give: time.Hour * 72,
-			want: "P3D",
+			want: "3D",
 		},
 		{
 			give: time.Hour * 26,
-			want: "P1DT2H",
+			want: "1D2H",
 		},
 		{
 			give: time.Second * 465461651,
-			want: "P14Y9M3DT12H54M11S",
+			want: "14Y9M3D12H54m11S",
 		},
 		{
 			give: -time.Hour * 99544,
-			want: "-P11Y4M1W4D",
+			want: "-11Y4M1W4D",
 		},
 		{
 			give: -time.Second * 10,
-			want: "-PT10S",
+			want: "-10S",
 		},
 	}
 	for _, tt := range tests {
@@ -248,42 +238,42 @@ func TestDuration_ToTimeDuration(t *testing.T) {
 }
 
 func TestDuration_String(t *testing.T) {
-	duration, err := Parse("P3Y6M4DT12H30M5.5S")
+	duration, err := Parse("3Y6M4D12H30m5.5S")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if duration.String() != "P3Y6M4DT12H30M5.5S" {
-		t.Errorf("expected: %s, got: %s", "P3Y6M4DT12H30M5.5S", duration.String())
+	if duration.String() != "3Y6M4D12H30m5.5S" {
+		t.Errorf("expected: %s, got: %s", "3Y6M4D12H30m5.5S", duration.String())
 	}
 
 	duration.Seconds = 33.3333
 
-	if duration.String() != "P3Y6M4DT12H30M33.3333S" {
-		t.Errorf("expected: %s, got: %s", "P3Y6M4DT12H30M33.3333S", duration.String())
+	if duration.String() != "3Y6M4D12H30m33.3333S" {
+		t.Errorf("expected: %s, got: %s", "3Y6M4D12H30m33.3333S", duration.String())
 	}
 
-	smallDuration, err := Parse("PT0.0000000000001S")
+	smallDuration, err := Parse("0.0000000000001S")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if smallDuration.String() != "PT0.0000000000001S" {
-		t.Errorf("expected: %s, got: %s", "PT0.0000000000001S", smallDuration.String())
+	if smallDuration.String() != "0.0000000000001S" {
+		t.Errorf("expected: %s, got: %s", "0.0000000000001S", smallDuration.String())
 	}
 
-	negativeDuration, err := Parse("-PT2H5M")
+	negativeDuration, err := Parse("-2H5m")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if negativeDuration.String() != "-PT2H5M" {
-		t.Errorf("expected: %s, got: %s", "-PT2H5M", negativeDuration.String())
+	if negativeDuration.String() != "-2H5m" {
+		t.Errorf("expected: %s, got: %s", "-2H5m", negativeDuration.String())
 	}
 }
 
 func TestDuration_MarshalJSON(t *testing.T) {
-	td, err := Parse("P3Y6M4DT12H30M5.5S")
+	td, err := Parse("3Y6M4D12H30m5.5S")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -294,8 +284,8 @@ func TestDuration_MarshalJSON(t *testing.T) {
 	if err != nil {
 		t.Errorf("did not expect error: %s", err.Error())
 	}
-	if string(jsonVal) != `{"d":"P3Y6M4DT12H30M5.5S"}` {
-		t.Errorf("expected: %s, got: %s", `{"d":"P3Y6M4DT12H30M5.5S"}`, string(jsonVal))
+	if string(jsonVal) != `{"d":"3Y6M4D12H30m5.5S"}` {
+		t.Errorf("expected: %s, got: %s", `{"d":"3Y6M4D12H30m5.5S"}`, string(jsonVal))
 	}
 
 	jsonVal, err = json.Marshal(struct {
@@ -304,18 +294,18 @@ func TestDuration_MarshalJSON(t *testing.T) {
 	if err != nil {
 		t.Errorf("did not expect error: %s", err.Error())
 	}
-	if string(jsonVal) != `{"d":"P3Y6M4DT12H30M5.5S"}` {
-		t.Errorf("expected: %s, got: %s", `{"d":"P3Y6M4DT12H30M5.5S"}`, string(jsonVal))
+	if string(jsonVal) != `{"d":"3Y6M4D12H30m5.5S"}` {
+		t.Errorf("expected: %s, got: %s", `{"d":"3Y6M4D12H30m5.5S"}`, string(jsonVal))
 	}
 }
 
 func TestDuration_UnmarshalJSON(t *testing.T) {
 	jsonStr := `
 		{
-			"d": "P3Y6M4DT12H30M5.5S"
+			"d": "3Y6M4D12H30m5.5S"
 		}
 	`
-	expected, err := Parse("P3Y6M4DT12H30M5.5S")
+	expected, err := Parse("3Y6M4D12H30m5.5S")
 	if err != nil {
 		t.Fatal(err)
 	}

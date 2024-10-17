@@ -49,87 +49,55 @@ var (
 // Parse attempts to parse the given duration string into a *Duration,
 // if parsing fails an error is returned instead.
 func Parse(d string) (*Duration, error) {
-	state := parsingPeriod
 	duration := &Duration{}
 	num := ""
 	var err error
 
 	switch {
-	case strings.HasPrefix(d, "P"): // standard duration
-	case strings.HasPrefix(d, "-P"): // negative duration
+	case strings.HasPrefix(d, "-"): // negative duration
 		duration.Negative = true
 		d = strings.TrimPrefix(d, "-") // remove the negative sign
-	default:
-		return nil, ErrUnexpectedInput
 	}
 
 	for _, char := range d {
 		switch char {
-		case 'P':
-			if state != parsingPeriod {
-				return nil, ErrUnexpectedInput
-			}
-		case 'T':
-			state = parsingTime
 		case 'Y':
-			if state != parsingPeriod {
-				return nil, ErrUnexpectedInput
-			}
-
 			duration.Years, err = strconv.ParseFloat(num, 64)
 			if err != nil {
 				return nil, err
 			}
 			num = ""
 		case 'M':
-			if state == parsingPeriod {
-				duration.Months, err = strconv.ParseFloat(num, 64)
-				if err != nil {
-					return nil, err
-				}
-				num = ""
-			} else if state == parsingTime {
-				duration.Minutes, err = strconv.ParseFloat(num, 64)
-				if err != nil {
-					return nil, err
-				}
-				num = ""
+			duration.Months, err = strconv.ParseFloat(num, 64)
+			if err != nil {
+				return nil, err
 			}
+			num = ""
+		case 'm':
+			duration.Minutes, err = strconv.ParseFloat(num, 64)
+			if err != nil {
+				return nil, err
+			}
+			num = ""
 		case 'W':
-			if state != parsingPeriod {
-				return nil, ErrUnexpectedInput
-			}
-
 			duration.Weeks, err = strconv.ParseFloat(num, 64)
 			if err != nil {
 				return nil, err
 			}
 			num = ""
 		case 'D':
-			if state != parsingPeriod {
-				return nil, ErrUnexpectedInput
-			}
-
 			duration.Days, err = strconv.ParseFloat(num, 64)
 			if err != nil {
 				return nil, err
 			}
 			num = ""
 		case 'H':
-			if state != parsingTime {
-				return nil, ErrUnexpectedInput
-			}
-
 			duration.Hours, err = strconv.ParseFloat(num, 64)
 			if err != nil {
 				return nil, err
 			}
 			num = ""
 		case 'S':
-			if state != parsingTime {
-				return nil, ErrUnexpectedInput
-			}
-
 			duration.Seconds, err = strconv.ParseFloat(num, 64)
 			if err != nil {
 				return nil, err
@@ -236,12 +204,12 @@ func (duration *Duration) ToTimeDuration() time.Duration {
 
 // String returns the ISO8601 duration string for the *Duration
 func (duration *Duration) String() string {
-	d := "P"
+	d := ""
 	hasTime := false
 
 	appendD := func(designator string, value float64, isTime bool) {
 		if !hasTime && isTime {
-			d += "T"
+			d += ""
 			hasTime = true
 		}
 
@@ -269,7 +237,7 @@ func (duration *Duration) String() string {
 	}
 
 	if duration.Minutes != 0 {
-		appendD("M", duration.Minutes, true)
+		appendD("m", duration.Minutes, true)
 	}
 
 	if duration.Seconds != 0 {
@@ -277,8 +245,8 @@ func (duration *Duration) String() string {
 	}
 
 	// if the duration is zero, return "PT0S"
-	if d == "P" {
-		d += "T0S"
+	if d == "" {
+		d += "0S"
 	}
 
 	if duration.Negative {
