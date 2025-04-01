@@ -61,7 +61,7 @@ func Parse(d string) (*Duration, error) {
 
 	for _, char := range d {
 		switch char {
-		case 'Y':
+		case 'Y', 'y':
 			duration.Years, err = strconv.ParseFloat(num, 64)
 			if err != nil {
 				return nil, err
@@ -79,25 +79,25 @@ func Parse(d string) (*Duration, error) {
 				return nil, err
 			}
 			num = ""
-		case 'W':
+		case 'W', 'w':
 			duration.Weeks, err = strconv.ParseFloat(num, 64)
 			if err != nil {
 				return nil, err
 			}
 			num = ""
-		case 'D':
+		case 'D', 'd':
 			duration.Days, err = strconv.ParseFloat(num, 64)
 			if err != nil {
 				return nil, err
 			}
 			num = ""
-		case 'H':
+		case 'H', 'h':
 			duration.Hours, err = strconv.ParseFloat(num, 64)
 			if err != nil {
 				return nil, err
 			}
 			num = ""
-		case 'S':
+		case 'S', 's':
 			duration.Seconds, err = strconv.ParseFloat(num, 64)
 			if err != nil {
 				return nil, err
@@ -217,7 +217,7 @@ func (duration *Duration) String() string {
 	}
 
 	if duration.Years != 0 {
-		appendD("Y", duration.Years, false)
+		appendD("y", duration.Years, false)
 	}
 
 	if duration.Months != 0 {
@@ -225,15 +225,15 @@ func (duration *Duration) String() string {
 	}
 
 	if duration.Weeks != 0 {
-		appendD("W", duration.Weeks, false)
+		appendD("w", duration.Weeks, false)
 	}
 
 	if duration.Days != 0 {
-		appendD("D", duration.Days, false)
+		appendD("d", duration.Days, false)
 	}
 
 	if duration.Hours != 0 {
-		appendD("H", duration.Hours, true)
+		appendD("h", duration.Hours, true)
 	}
 
 	if duration.Minutes != 0 {
@@ -241,12 +241,12 @@ func (duration *Duration) String() string {
 	}
 
 	if duration.Seconds != 0 {
-		appendD("S", duration.Seconds, true)
+		appendD("s", duration.Seconds, true)
 	}
 
 	// if the duration is zero, return "PT0S"
 	if d == "" {
-		d += "0S"
+		d += "0s"
 	}
 
 	if duration.Negative {
