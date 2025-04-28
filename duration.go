@@ -1,6 +1,7 @@
 package duration
 
 import (
+	"database/sql/driver"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -276,4 +277,20 @@ func (duration *Duration) UnmarshalJSON(source []byte) error {
 
 	*duration = *parsed
 	return nil
+}
+
+func (duration *Duration) Scan(value interface{}) error {
+	str, ok := value.(string)
+	if !ok {
+		return fmt.Errorf("cannot scan %T into duration", value)
+	}
+	duration, err := Parse(str)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (duration *Duration) Value() (driver.Value, error) {
+	return duration.String(), nil
 }
