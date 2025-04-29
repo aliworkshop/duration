@@ -280,15 +280,22 @@ func (duration *Duration) UnmarshalJSON(source []byte) error {
 }
 
 // Scan helper to retrieve duration data from postgres
-func (duration *Duration) Scan(value interface{}) error {
-	str, ok := value.(string)
-	if !ok {
+func (d *Duration) Scan(value interface{}) error {
+	var s string
+	switch v := value.(type) {
+	case string:
+		s = v
+	case []byte:
+		s = string(v)
+	default:
 		return fmt.Errorf("cannot scan %T into duration", value)
 	}
-	duration, err := Parse(str)
+
+	parsed, err := Parse(s)
 	if err != nil {
-		return err
+		return fmt.Errorf("duration.Parse(%q): %w", s, err)
 	}
+	*d = *parsed
 	return nil
 }
 
