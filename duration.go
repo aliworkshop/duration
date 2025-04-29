@@ -279,6 +279,7 @@ func (duration *Duration) UnmarshalJSON(source []byte) error {
 	return nil
 }
 
+// Scan helper to retrieve duration data from postgres
 func (duration *Duration) Scan(value interface{}) error {
 	str, ok := value.(string)
 	if !ok {
@@ -291,6 +292,7 @@ func (duration *Duration) Scan(value interface{}) error {
 	return nil
 }
 
-func (duration *Duration) Value() (driver.Value, error) {
+// Value helper to insert duration data into postgres
+func (duration Duration) Value() (driver.Value, error) {
 	return duration.String(), nil
 }
