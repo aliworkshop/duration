@@ -52,8 +52,11 @@ var (
 func Parse(d string) (*Duration, error) {
 	duration := &Duration{}
 	num := ""
-	var err error
 
+	timeD, err := time.ParseDuration(d)
+	if err == nil {
+		return FromTimeDuration(timeD), nil
+	}
 	switch {
 	case strings.HasPrefix(d, "-"): // negative duration
 		duration.Negative = true
