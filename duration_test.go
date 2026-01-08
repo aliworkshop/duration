@@ -31,11 +31,20 @@ func TestParse(t *testing.T) {
 				Years: 4,
 			},
 			wantErr: false,
-		}, {
-			name: "microsecond",
+		},
+		{
+			name: "millisecond",
 			args: args{d: "500ms"},
 			want: &Duration{
 				Seconds: 0.5,
+			},
+			wantErr: false,
+		},
+		{
+			name: "microsecond",
+			args: args{d: "500us"},
+			want: &Duration{
+				Seconds: 0.0005,
 			},
 			wantErr: false,
 		},
